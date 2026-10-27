@@ -78,6 +78,8 @@ Electrical precautions:
 
 ## ThingSpeak schema
 
+Public ThingSpeak channel: [Channel 3543079](https://thingspeak.mathworks.com/channels/3543079)
+
 | CSV column | Configured meaning | Units | Pipeline role |
 |---|---|---|---|
 | `created_at` | Record timestamp | UTC timestamp | Chronological ordering and gap analysis |
