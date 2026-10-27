@@ -92,17 +92,17 @@ The physical prototype uses an ESP32 board with two sensors. Project code and pr
 
 **1. ESP32 DevKit-family board reference**
 
-![ESP32 DevKit V1 development-board reference](https://static.ticimax.cloud/cdn-cgi/image/width%3D0%2Cquality%3D85/75519/uploads/urunresimleri/buyuk/esp32-wifi-bluetooth-gelistirme-karti---4396-.jpg)
+![ESP32 development board reference](https://cdn-shop.adafruit.com/970x728/3269-04.jpg)
 
-This is a general board reference, not a verified photograph of the specific board used in this project. Board layout and USB connector can vary by version.
+Image source: [Adafruit ESP32 Development Board reference](https://www.adafruit.com/product/3269). This is a general reference photo, not a verified photograph of the exact board used in this project. ESP32 DevKit variants differ in board layout, USB connector, and USB-to-UART chip.
 
 **2. Conceptual sensor-wiring illustration**
 
 This is a conceptual wiring reference for an ESP32 with an LM35-style analog sensor and DHT22-style digital sensor. It is not a photograph or a confirmed exact replica of the assembled circuit. Use the GPIO34 and GPIO4 assignments documented above, and confirm the actual sensor pinout before replicating a circuit.
 
-![Conceptual ESP32, LM35 and DHT22 sensor wiring reference](https://thumbs.wokwi.com/projects/399467738985928705/social/1717221539434.png)
+![Project wiring schematic: ESP32 GPIO34 to LM35 analog output and GPIO4 to DHT data](docs/images/esp32-lm35-dht-wiring.svg)
 
-The linked illustration may show an additional sensor or different labels; use it only as a visual reference. The project-specific connections are those recorded in the table above.
+This project-specific vector schematic documents the signal assignments noted in the code and earlier hardware notes. It is a conceptual connection diagram—not a photograph of the assembled prototype. It deliberately labels the LM35 supply generically because the exact module/supply wiring must be verified against the real sensor datasheet.
 
 ## ThingSpeak data schema
 
@@ -117,7 +117,9 @@ The ThingSpeak channel mapping has been verified:
 
 Other columns such as `entry_id`, location, elevation, or status may be present in a ThingSpeak export; the current pipeline expects `created_at`, `field1`, `field2`, and `field3`.
 
-**Important:** The code uses the verified field mapping above. The data itself includes abrupt changes and long gaps, so field names alone are not evidence that every sensor value is physically correct.
+**Important:** The table describes the configured channel labels, not a guarantee that every historical uploaded value was written to the intended field. The data also contains abrupt changes and long gaps, so field names alone are not enough to establish the physical meaning of every row.
+
+> **Important data-mapping caveat — resolve before relying on the model results:** The ThingSpeak Channel Settings were reported as Field 1 = LM35 Temperature, Field 2 = DHT Temperature, and Field 3 = DHT Humidity. However, the reviewed CSV contains segments where Field 2 is around 53–55 while Field 3 is around 26–27, followed by later segments where Field 2 is around 25–27 and Field 3 is around 60–62. Given the expected sensor signals and the serial readings described during development, this looks like a possible field-order reversal or firmware/upload inconsistency across collection periods. The pipeline currently applies one fixed mapping to every row, so the current metrics should be treated as **provisional** until the historical field values are reconciled with the firmware field-write calls, channel settings, and serial output. Do not silently swap fields or claim the best model represents humidity-based prediction until this issue is resolved.
 
 ## Dataset and preprocessing
 
@@ -128,8 +130,8 @@ The latest documented run used a ThingSpeak CSV containing **145 records**.
 | Original records | 145 |
 | Rows with missing humidity | 44 |
 | Missing-humidity pattern | Consecutive initial block (rows 1–44 in the inspected export) |
-| Valid humidity + LM35 rows | 101 |
-| Valid rows for the two-predictor configuration | 101 |
+| Rows valid under the configured humidity-only column rule | 101 |
+| Rows valid under the configured two-predictor column rule | 101 |
 | Duplicate timestamps | 0 |
 | Timestamp gaps greater than 30 seconds | 15 |
 | Largest gap between timestamps | 319,714 seconds (about 3.7 days) |
@@ -201,9 +203,10 @@ The following figures are the metrics saved by the documented run `20261027_2022
 
 ### Interpretation
 
-- The **two-predictor Fine Tree** has the lowest reported RMSE and MAE among the listed candidate models.
+- The **two-predictor Fine Tree** has the lowest reported RMSE and MAE among the listed candidate models *in the saved run*. Because the field-value pattern may change within the CSV, this numeric ranking is not yet a reliable claim about the physically intended predictors.
 - For the humidity-only configuration, the Fine Tree has the lowest reported RMSE and MAE among Linear Regression, Fine Tree, LSBoost, SVR, and the separately saved Gaussian Process result.
 - **All displayed R² values are negative.** This is a warning not to call the models generally accurate based on RMSE/MAE alone.
+- Resolve the historical Field 2 / Field 3 inconsistency before interpreting the table as a scientifically valid humidity-versus-temperature comparison.
 - The 21 humidity-only test targets have a very small reported spread (approximately 16.673–16.975 °C in the saved cleaned test segment). When test targets are nearly constant, the denominator in R² is small; even modest errors can therefore produce a negative R².
 - The training-mean baseline had RMSE **8.198129 °C**, MAE **8.197881 °C**, and R² **-16534.942131** in the saved baseline report. This is consistent with a training mean far from the nearly constant test target segment; it is not evidence that the Fine Tree generalizes across environmental conditions.
 - The current evaluation is a small chronological holdout with long time gaps. More continuous measurements over a wider range of conditions are needed before making strong claims about model quality.
