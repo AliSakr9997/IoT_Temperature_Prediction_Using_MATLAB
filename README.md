@@ -96,6 +96,12 @@ The physical prototype uses an ESP32 board with two sensors. Project code and pr
 
 Image source: [Adafruit ESP32 Development Board reference](https://www.adafruit.com/product/3269). This is a general reference photo, not a verified photograph of the exact board used in this project. ESP32 DevKit variants differ in board layout, USB connector, and USB-to-UART chip.
 
+**ESP32 DevKit pinout reference (based on the pinout image supplied for this project)**
+
+![ESP32-WROOM-32 DevKit pinout reference, including GPIO34 ADC and GPIO4](docs/images/esp32-devkit-pinout.svg)
+
+This is a redrawn, repository-hosted pinout reference based on your supplied image, not the original uploaded JPG. The diagram highlights GPIO34 for the LM35 analog output and GPIO4 for DHT data. Pin numbering can vary by board revision, so verify the silkscreen and exact module before wiring.
+
 **2. Conceptual sensor-wiring illustration**
 
 This is a conceptual wiring reference for an ESP32 with an LM35-style analog sensor and DHT22-style digital sensor. It is not a photograph or a confirmed exact replica of the assembled circuit. Use the GPIO34 and GPIO4 assignments documented above, and confirm the actual sensor pinout before replicating a circuit.
