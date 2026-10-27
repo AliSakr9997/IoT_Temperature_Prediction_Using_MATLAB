@@ -1,0 +1,1 @@
+One cleaned dataset is used: rows require finite LM35Temperature, DHTTemperature, and DHTHumidity. Each target is predicted from the other two sensors. Results are chronological 80/20 train/test and include all supported model families.

@@ -1,0 +1,23 @@
+# Keep project data, Live Scripts, models, figures, and reports versioned.
+# Exclude only secrets and machine-local clutter.
+*.key
+*.pem
+*.p12
+*.env
+secrets/
+credentials/
+**/*api_key*
+**/*token*
+**/*credential*
+**/*password*
+*.asv
+
+# MATLAB temporary files
+*.m~
+slprj/
+codegen/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+

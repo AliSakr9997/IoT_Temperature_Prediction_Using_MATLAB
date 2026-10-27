@@ -1,0 +1,2 @@
+OriginalRows,HumidityValidRows,TwoPredictorRows,MissingHumidity,DuplicateTimestamps,GapsOver30s,LargestGapSeconds
+705,661,661,44,0,30,319714

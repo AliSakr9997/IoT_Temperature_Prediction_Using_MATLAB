@@ -1,0 +1,13 @@
+IoT Temperature Prediction - Humidity-only Baseline
+
+Mapping: field1 = LM35 temperature; field2 = DHT temperature; field3 = DHT humidity.
+Rows before cleaning: 145
+Rows after cleaning: 101
+Training rows: 80
+Testing rows: 21
+Cleaning: removed rows with missing/non-finite required field1 or field3; no imputation.
+Missing field3 values: rows 1-44, one consecutive initial block.
+Duplicate timestamps: 0. Timestamp gaps >30 seconds: 15; maximum gap: 319714 seconds.
+Fine Tree: RMSE 0.089866, MAE 0.052957, R2 -0.986971
+Training-mean baseline: RMSE 8.198129, MAE 8.197881, R2 -16534.942131
+Note: negative R2 reflects the nonstationary/limited test segment; metrics are held-out only.

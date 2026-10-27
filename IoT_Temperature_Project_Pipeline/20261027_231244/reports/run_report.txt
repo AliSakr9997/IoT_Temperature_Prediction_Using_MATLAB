@@ -1,0 +1,10 @@
+IoT Temperature Prediction Pipeline
+Run: 20261027_231244
+Input: C:\Users\alisa\Downloads\feeds.csv
+Mapping: field1=LM35, field2=DHT temperature, field3=DHT humidity
+Rows: original 861, humidity-valid 817, two-predictor-valid 817
+Train/test humidity: 653/164
+Missing humidity: 44; duplicate timestamps: 0; gaps >30s: 36; largest gap seconds: 319714
+
+Fine Tree: RMSE 0.474698, MAE 0.288572, R2 0.422566, bias 0.186327
+Training mean baseline: RMSE 2.619927, MAE 2.544361, R2 -16.589172, bias 2.544361

@@ -1,0 +1,12 @@
+Independent baseline audit
+Original timestamps: 20-Oct-2026 13:39:12 to 27-Oct-2026 15:53:49
+Clean humidity timestamps: 27-Oct-2026 14:18:14 to 27-Oct-2026 15:53:49
+Train timestamps: 27-Oct-2026 14:18:14 to 27-Oct-2026 15:46:33
+Test timestamps: 27-Oct-2026 15:46:48 to 27-Oct-2026 15:53:49
+Elapsed train-to-test boundary: 15 seconds
+Original gaps >30s: 15, max gap 319714 s
+Clean gaps >30s: 7, max gap 3534 s
+Missing humidity rows: 44 initial consecutive rows
+Test target variance: 0.004268 C^2
+Fine Tree: RMSE 0.089866, MAE 0.052957, R2 -0.986971
+Training mean baseline: RMSE 8.198129, MAE 8.197881, R2 -16534.942131

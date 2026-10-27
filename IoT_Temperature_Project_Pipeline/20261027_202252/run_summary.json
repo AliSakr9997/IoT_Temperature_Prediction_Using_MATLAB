@@ -1,0 +1,1 @@
+{"runDirectory":"C:\\Users\\alisa\\OneDrive\\Documents\\MATLAB\\IoT_Temperature_Project_Pipeline\\20261027_202252","inputFile":"C:\\Users\\alisa\\Downloads\\feeds.csv","mapping":{"field1":"LM35Temperature","field2":"DHTTemperature","field3":"DHTHumidity"},"rowsOriginal":145,"rowsHumidity":101,"timestamp":"27-Oct-2026 20:27:07"}
