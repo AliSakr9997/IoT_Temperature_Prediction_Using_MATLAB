@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Conceptual ESP32 LM35 and DHT sensor wiring</title>
+  <desc id="desc">A clear wiring reference showing LM35 analog output to ESP32 GPIO34 ADC, DHT data to GPIO4, sensor power requirements, a common ground, and Wi-Fi data flow to ThingSpeak.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#f5f8fc"/><stop offset="1" stop-color="#eaf0f8"/></linearGradient>
+    <linearGradient id="board" x1="0" x2="1"><stop stop-color="#173c35"/><stop offset="1" stop-color="#245b4f"/></linearGradient>
+    <linearGradient id="sensor" x1="0" x2="1"><stop stop-color="#334155"/><stop offset="1" stop-color="#64748b"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0f172a" flood-opacity=".13"/></filter>
+    <style>
+      .heading{font:700 38px Arial,sans-serif;fill:#13243a}.sub{font:400 19px Arial,sans-serif;fill:#556579}
+      .cardTitle{font:700 25px Arial,sans-serif;fill:#142235}.label{font:600 18px Arial,sans-serif;fill:#223047}
+      .small{font:400 16px Arial,sans-serif;fill:#475569}.pin{font:700 16px Arial,sans-serif;fill:#f8fafc}
+      .wire{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:7}
+    </style>
+  </defs>
+  <rect width="1600" height="900" rx="28" fill="url(#bg)"/>
+  <text x="70" y="76" class="heading">ESP32 Temperature &amp; Humidity Sensor Wiring</text>
+  <text x="70" y="112" class="sub">Conceptual reference • confirm the exact board and sensor pinouts before wiring</text>
+
+  <!-- LM35 card -->
+  <rect x="70" y="175" width="390" height="265" rx="22" fill="#fff" filter="url(#shadow)"/>
+  <rect x="70" y="175" width="390" height="64" rx="22" fill="#dbeafe"/>
+  <path d="M70 217 H460 V239 H70 Z" fill="#dbeafe"/>
+  <text x="100" y="215" class="cardTitle">LM35 Analog Temperature</text>
+  <rect x="115" y="270" width="125" height="112" rx="16" fill="url(#sensor)"/>
+  <rect x="143" y="250" width="69" height="24" rx="8" fill="#475569"/>
+  <text x="177" y="329" font-family="Arial,sans-serif" font-size="28" font-weight="700" text-anchor="middle" fill="#fff">LM35</text>
+  <path d="M140 382 V411 M177 382 V411 M214 382 V411" stroke="#94a3b8" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="140" cy="411" r="7" fill="#ef4444"/><circle cx="177" cy="411" r="7" fill="#2563eb"/><circle cx="214" cy="411" r="7" fill="#334155"/>
+  <text x="270" y="291" class="label">V+ / Vs</text>
+  <text x="270" y="314" class="small">Sensor supply</text>
+  <text x="270" y="349" class="label">Vout</text>
+  <text x="270" y="372" class="small">Analog signal</text>
+  <text x="270" y="406" class="label">GND</text>
+
+  <!-- DHT card -->
+  <rect x="1140" y="175" width="390" height="265" rx="22" fill="#fff" filter="url(#shadow)"/>
+  <rect x="1140" y="175" width="390" height="64" rx="22" fill="#dcfce7"/>
+  <path d="M1140 217 H1530 V239 H1140 Z" fill="#dcfce7"/>
+  <text x="1170" y="215" class="cardTitle">DHT Temperature / Humidity</text>
+  <rect x="1195" y="264" width="126" height="126" rx="14" fill="#0f6b9a" stroke="#0b4f75" stroke-width="5"/>
+  <g fill="#49b5df" opacity=".95">
+    <rect x="1212" y="280" width="18" height="25" rx="5"/><rect x="1241" y="280" width="18" height="25" rx="5"/><rect x="1270" y="280" width="18" height="25" rx="5"/>
+    <rect x="1212" y="314" width="18" height="25" rx="5"/><rect x="1241" y="314" width="18" height="25" rx="5"/><rect x="1270" y="314" width="18" height="25" rx="5"/>
+    <rect x="1212" y="348" width="18" height="25" rx="5"/><rect x="1241" y="348" width="18" height="25" rx="5"/><rect x="1270" y="348" width="18" height="25" rx="5"/>
+  </g>
+  <path d="M1215 390 V412 M1258 390 V412 M1301 390 V412" stroke="#64748b" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="1215" cy="412" r="7" fill="#ef4444"/><circle cx="1258" cy="412" r="7" fill="#2563eb"/><circle cx="1301" cy="412" r="7" fill="#334155"/>
+  <text x="1350" y="292" class="label">VCC</text><text x="1350" y="315" class="small">3.3 V module*</text>
+  <text x="1350" y="350" class="label">DATA</text><text x="1350" y="373" class="small">Digital signal</text>
+  <text x="1350" y="408" class="label">GND</text>
+
+  <!-- ESP32 central board -->
+  <rect x="515" y="300" width="570" height="375" rx="28" fill="url(#board)" filter="url(#shadow)"/>
+  <rect x="675" y="348" width="250" height="115" rx="14" fill="#cbd5e1" stroke="#94a3b8" stroke-width="4"/>
+  <rect x="711" y="373" width="178" height="68" rx="8" fill="#64748b"/>
+  <text x="800" y="403" font-family="Arial,sans-serif" font-size="24" font-weight="700" text-anchor="middle" fill="#f8fafc">ESP32</text>
+  <text x="800" y="429" font-family="Arial,sans-serif" font-size="16" text-anchor="middle" fill="#e2e8f0">WROOM / DevKit</text>
+  <rect x="740" y="485" width="120" height="35" rx="9" fill="#0f172a" stroke="#64748b" stroke-width="3"/>
+  <text x="800" y="508" font-family="Arial,sans-serif" font-size="15" font-weight="700" text-anchor="middle" fill="#e2e8f0">USB / POWER</text>
+  <text x="555" y="335" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="#f8fafc">ESP32 DevKit</text>
+  <text x="555" y="613" font-family="Arial,sans-serif" font-size="17" fill="#d1fae5">Wi-Fi → ThingSpeak</text>
+
+  <!-- Header pins -->
+  <g fill="#dbeafe" stroke="#0f172a" stroke-width="2">
+    <rect x="554" y="366" width="24" height="18" rx="3"/><rect x="554" y="401" width="24" height="18" rx="3"/><rect x="554" y="436" width="24" height="18" rx="3"/><rect x="554" y="471" width="24" height="18" rx="3"/><rect x="554" y="506" width="24" height="18" rx="3"/>
+    <rect x="1020" y="366" width="24" height="18" rx="3"/><rect x="1020" y="401" width="24" height="18" rx="3"/><rect x="1020" y="436" width="24" height="18" rx="3"/><rect x="1020" y="471" width="24" height="18" rx="3"/><rect x="1020" y="506" width="24" height="18" rx="3"/>
+  </g>
+  <text x="592" y="379" class="pin">GPIO34 / ADC</text>
+  <text x="592" y="414" class="pin">GPIO4 / DATA</text>
+  <text x="592" y="449" class="pin">3V3</text>
+  <text x="592" y="484" class="pin">GND</text>
+  <text x="592" y="519" class="pin">VIN / USB*</text>
+  <text x="920" y="379" class="pin" text-anchor="end">ADC input</text>
+  <text x="1004" y="414" class="pin" text-anchor="end">Digital I/O</text>
+  <text x="1004" y="449" class="pin" text-anchor="end">Power rail</text>
+  <text x="1004" y="484" class="pin" text-anchor="end">Common</text>
+
+  <!-- Signals -->
+  <path d="M177 411 V465 H490 V375 H554" class="wire" stroke="#2563eb"/>
+  <path d="M177 411 V455 H478 V485 H554" class="wire" stroke="#334155" opacity=".0"/>
+  <path d="M1258 412 V530 H1090 V410 H1044" class="wire" stroke="#38bdf8"/>
+  <path d="M1301 412 V700 H480 V485 H554" class="wire" stroke="#334155"/>
+  <path d="M140 411 V695 H460 V449 H554" class="wire" stroke="#ef4444"/>
+  <path d="M1215 412 V680 H1110 V449 H1044" class="wire" stroke="#ef4444" opacity=".0"/>
+
+  <!-- Callouts -->
+  <rect x="75" y="500" width="370" height="128" rx="18" fill="#fff" stroke="#bfdbfe" stroke-width="2"/>
+  <text x="100" y="536" class="label" fill="#1d4ed8">LM35 signal path</text>
+  <text x="100" y="565" class="small">Vout → GPIO34 (ADC)</text>
+  <text x="100" y="590" class="small">GND → common GND</text>
+  <text x="100" y="615" class="small">Power the LM35 per its datasheet.</text>
+
+  <rect x="1150" y="500" width="380" height="128" rx="18" fill="#fff" stroke="#bbf7d0" stroke-width="2"/>
+  <text x="1175" y="536" class="label" fill="#166534">DHT signal path</text>
+  <text x="1175" y="565" class="small">DATA → GPIO4</text>
+  <text x="1175" y="590" class="small">VCC → 3V3 (for compatible module)</text>
+  <text x="1175" y="615" class="small">GND → common GND</text>
+
+  <!-- Wi-Fi / ThingSpeak -->
+  <rect x="565" y="710" width="470" height="96" rx="20" fill="#fff" stroke="#cbd5e1" stroke-width="2"/>
+  <path d="M610 750 Q640 720 670 750 M620 763 Q640 743 660 763 M632 776 Q640 768 648 776" fill="none" stroke="#0ea5e9" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="640" cy="788" r="5" fill="#0ea5e9"/>
+  <text x="690" y="751" class="label">Wi-Fi upload to ThingSpeak</text>
+  <text x="690" y="779" class="small">Sensor readings → channel fields → CSV</text>
+
+  <!-- Notes -->
+  <text x="70" y="850" class="small">*Power pins depend on the exact sensor/module. ESP32 GPIOs are 3.3 V logic; never apply 5 V directly to a GPIO.</text>
+  <text x="70" y="875" class="small">Verify the real wiring and field mapping against the assembled hardware, firmware, and ThingSpeak data before use.</text>
+</svg>
