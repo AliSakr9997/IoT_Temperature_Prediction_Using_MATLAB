@@ -1,4 +1,17 @@
-# IoT Temperature Prediction Using MATLAB
+<div align="center">
+
+# 🌡️ IoT Temperature Prediction Using MATLAB
+
+![MATLAB](https://img.shields.io/badge/MATLAB-analysis%20pipeline-0076A8?style=for-the-badge&logo=mathworks&logoColor=white)
+![ESP32](https://img.shields.io/badge/Hardware-ESP32-E7352C?style=for-the-badge)
+![ThingSpeak](https://img.shields.io/badge/IoT-ThingSpeak-1E9BDB?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-4fd1a5?style=for-the-badge)
+
+**A reproducible ESP32–ThingSpeak sensor-analysis and temperature-regression project**
+
+</div>
+
+---
 
 An ESP32–ThingSpeak–MATLAB project for collecting temperature and humidity sensor readings, validating exported data, comparing regression models, and preserving reproducible experiment artifacts.
 
@@ -13,9 +26,13 @@ The repository contains the raw ThingSpeak export, the original MATLAB Live Scri
 - [Data and preprocessing](#data-and-preprocessing)
 - [Machine-learning experiments](#machine-learning-experiments)
 - [Latest verified results](#latest-verified-results)
-- [Reproduce the pipeline](#reproduce-the-pipeline)
+- [Quick start and reproduction](#quick-start-and-reproduction)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [API and external services](#api-and-external-services)
 - [Saved artifacts](#saved-artifacts)
 - [Limitations](#limitations)
+- [Disclaimer](#disclaimer)
 
 ## Objectives
 
@@ -46,7 +63,7 @@ flowchart LR
 | Analog sensor | LM35 | Temperature signal |
 | Digital sensor | DHT module | Temperature and relative humidity |
 | IoT platform | ThingSpeak | Stores timestamped channel fields |
-| Analysis | MATLAB R2026a Update 5 | Import, validation, cleaning, training, evaluation |
+| Analysis | MATLAB | Import, validation, cleaning, training, evaluation |
 | Models | Linear, trees, ensembles, SVR, Gaussian Process, neural-network regression where available | Model comparison |
 | Version control | Git/GitHub | Source and experiment provenance |
 
@@ -154,12 +171,21 @@ Useful artifacts:
 - [Multi-target metrics](IoT_Temperature_Project_Pipeline/multitarget_20261027_234957/metrics/all_target_model_metrics.csv)
 - [Multi-target RMSE figure](IoT_Temperature_Project_Pipeline/multitarget_20261027_234957/figures/all_models_rmse.png)
 
-## Reproduce the pipeline
+## Quick start and reproduction
+
+### Prerequisites
+
+- MATLAB with the functions required by the selected experiment (`readtable`, regression learners, plotting, and table/file I/O).
+- The Statistics and Machine Learning Toolbox, when running the model families that depend on it.
+- The repository's `feeds.csv`, or a new ThingSpeak export with the same required columns: `created_at`, `field1`, `field2`, and `field3`.
+
+The pipeline is written as MATLAB scripts and functions; there is no Python, Node.js, Docker, or separate web-service setup in this repository.
 
 ```matlab
-pipelineRoot = 'C:\Users\alisa\OneDrive\Documents\MATLAB\IoT_Temperature_Project_Pipeline';
-inputFile = 'C:\Users\alisa\Downloads\feeds.csv';
-addpath(pipelineRoot);
+projectRoot = pwd;
+inputFile = fullfile(projectRoot, 'feeds.csv');
+pipelineRoot = fullfile(projectRoot, 'IoT_Temperature_Project_Pipeline');
+addpath(projectRoot);
 summary = run_pipeline(inputFile, pipelineRoot, 0.80, true);
 ```
 
@@ -177,6 +203,34 @@ To use a saved humidity-only model:
 newReading = table(53.2, 'VariableNames', {'DHTHumidity'});
 [temperatureC, info] = predict_lm35_temperature(newReading, 'path/to/humidity_fine_tree.mat');
 ```
+
+Each run creates a new timestamped output directory. Model families that are unavailable in the local MATLAB installation are skipped; only models that run successfully appear in the generated comparison files.
+
+## Configuration
+
+The project does not define a `.env` file or application configuration layer. `run_pipeline` and `run_multitarget_pipeline` accept the input CSV path, output directory, and train fraction as function arguments. Their source files also contain original Windows default paths, so passing explicit paths as shown above is recommended on other machines.
+
+The repository contains a public ThingSpeak export and generated experiment artifacts. Do not add Wi-Fi credentials, ThingSpeak write keys, access tokens, or other secrets to the repository.
+
+## Testing
+
+`test_pipeline_assertions.m` uses MATLAB's function-based testing framework:
+
+```matlab
+results = runtests('test_pipeline_assertions.m');
+table(results)
+```
+
+The tests are environment-specific: they currently reference the original Windows input/output paths and an earlier saved run under `IoT_Temperature_Project_Pipeline/20261027_202252`. Update those paths before running them elsewhere. This README does not claim that the test suite passes in the current environment.
+
+## API and external services
+
+This repository does not expose a custom HTTP API. The external data service is ThingSpeak:
+
+- [Public ThingSpeak channel 3543079](https://thingspeak.mathworks.com/channels/3543079)
+- CSV input schema and field mapping are documented in [ThingSpeak schema](#thingspeak-schema).
+
+The MATLAB functions operate on local files and saved `.mat` models rather than authenticated API endpoints.
 
 ## Saved artifacts and repository structure
 
@@ -206,6 +260,16 @@ The repository contains raw data and generated artifacts intentionally for repro
 - Compare models on identical test timestamps before declaring a winner.
 - This README documents saved artifacts and executed pipeline results; it does not claim a full MATLAB unit-test suite unless corresponding results are present in the artifacts.
 
+## Disclaimer
+
+This project is an engineering and machine-learning experiment for sensor-data analysis. Its predictions are not a substitute for calibrated instrumentation, environmental monitoring, safety controls, or professional engineering decisions. Validate the wiring, sensor ranges, data quality, and model behavior before using the results in any physical system.
+
 ## License
 
 See [LICENSE](LICENSE).
+
+<div align="center">
+
+Built for reproducible IoT sensing and temperature-analysis experiments.
+
+</div>
