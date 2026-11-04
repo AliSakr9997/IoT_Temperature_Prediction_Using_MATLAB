@@ -161,6 +161,29 @@ DHTHumidity + DHTTemperature -> LM35Temperature
 
 This is contemporaneous sensor regression, not future forecasting: the predictor readings are measured at the same time as the target reading.
 
+### Regression Learner cross-validation results
+
+The supplied Regression Learner export is preserved in [`resultsTable.csv`](resultsTable.csv). It contains 29 trained models evaluated with 5-fold cross-validation on 756 observations, using `LM35Temperature` and `DHTTemperature` as predictors and `DHTHumidity` as the response.
+
+The strongest validation result is Gaussian Process Regression model **2.19**, with an RMSE of **0.7884**, MAE of **0.2770**, and R² of **0.8464**. The next three models are also Gaussian Process Regression variants, confirming that this model family performs best in this experiment. Linear models are substantially weaker, while model 2.10 is an extreme SVM outlier and should not be treated as a meaningful benchmark.
+
+| Model | Type | Validation RMSE | Validation MAE | Validation R² |
+|---|---|---:|---:|---:|
+| 2.19 | Gaussian Process Regression | 0.7884 | 0.2770 | 0.8464 |
+| 2.16 | Gaussian Process Regression | 0.7934 | 0.2895 | 0.8445 |
+| 2.18 | Gaussian Process Regression | 0.8292 | 0.3199 | 0.8301 |
+| 2.17 | Gaussian Process Regression | 0.8303 | 0.3253 | 0.8297 |
+| 2.28 | Neural Network | 0.8762 | 0.3996 | 0.8103 |
+| 2.11 | SVM | 0.8850 | 0.3509 | 0.8065 |
+| 1 | Tree | 0.9488 | 0.3374 | 0.7776 |
+| 2.23 | Ensemble | 0.9704 | 0.4318 | 0.7673 |
+
+![Regression Learner model comparison](latest_manual_run/figures/step24_model_comparison_rmse.png)
+
+*Figure 13. Repository model-comparison figure corresponding to the regression-model evaluation. The complete exported table, including all models and metrics, is available in [`resultsTable.csv`](resultsTable.csv).*
+
+These cross-validation results are a separate experiment from the chronological holdout results reported below. Because the response variable and validation design differ, their metrics should not be compared directly with the humidity-only or two-predictor Fine Tree test metrics.
+
 ## Latest manual results
 
 The complete captured output is available in [`manual_iot_pipeline_latest_output.txt`](manual_iot_pipeline_latest_output.txt), and the comparison table is [`manual_results_model_comparison.csv`](manual_results_model_comparison.csv).
