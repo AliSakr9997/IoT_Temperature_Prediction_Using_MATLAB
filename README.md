@@ -1,71 +1,55 @@
-<div align="center">
+# IoT Temperature Prediction Using MATLAB
 
-# 🌡️ IoT Temperature Prediction Using MATLAB
+An ESP32–ThingSpeak–MATLAB project for collecting LM35 and DHT sensor readings, cleaning the latest exported dataset, comparing regression models, and preserving the exact code and outputs used for the current experiment.
 
-![MATLAB](https://img.shields.io/badge/MATLAB-analysis%20pipeline-0076A8?style=for-the-badge&logo=mathworks&logoColor=white)
-![ESP32](https://img.shields.io/badge/Hardware-ESP32-E7352C?style=for-the-badge)
-![ThingSpeak](https://img.shields.io/badge/IoT-ThingSpeak-1E9BDB?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-4fd1a5?style=for-the-badge)
+This README intentionally documents the latest manual MATLAB run only. Earlier experiment counts, metrics, and timestamped runs are not used as current results.
 
-**A reproducible ESP32–ThingSpeak sensor-analysis and temperature-regression project**
+## Current experiment at a glance
 
-</div>
-
----
-
-An ESP32–ThingSpeak–MATLAB project for collecting temperature and humidity sensor readings, validating exported data, comparing regression models, and preserving reproducible experiment artifacts.
-
-The repository contains the raw ThingSpeak export, the original MATLAB Live Script, reusable MATLAB entry points, trained models, metrics, figures, and run-specific reports. It is an engineering experiment and documentation project; it is not an embedded on-device ML deployment or a guarantee of future forecasting performance.
-
-## Contents
-
-- [Objectives](#objectives)
-- [System architecture](#system-architecture)
-- [Hardware and wiring](#hardware-and-wiring)
-- [ThingSpeak schema](#thingspeak-schema)
-- [Data and preprocessing](#data-and-preprocessing)
-- [Machine-learning experiments](#machine-learning-experiments)
-- [Latest verified results](#latest-verified-results)
-- [Quick start and reproduction](#quick-start-and-reproduction)
-- [Configuration](#configuration)
-- [Testing](#testing)
-- [API and external services](#api-and-external-services)
-- [Saved artifacts](#saved-artifacts)
-- [Limitations](#limitations)
-- [Disclaimer](#disclaimer)
+| Item | Current value |
+|---|---:|
+| MATLAB release | R2026a Update 5 |
+| Source file | `feeds.csv` |
+| Original rows | 1,026 |
+| Cutoff | 27-Oct-2026 15:29:30 UTC |
+| Rows removed before cutoff | 80 |
+| Missing humidity rows removed | 44 |
+| Final cleaned rows | 946 |
+| Training rows | 756 |
+| Test rows | 190 |
+| Split | Chronological 80/20 |
+| Duplicate timestamps after cleaning | 0 |
 
 ## Objectives
 
-1. Collect synchronized LM35 and DHT sensor readings with an ESP32.
-2. Publish timestamped measurements to ThingSpeak.
-3. Export the channel data as CSV.
-4. Validate and clean the CSV directly in MATLAB.
-5. Compare regression models using chronological held-out evaluation.
-6. Save metrics, figures, models, and reports so a later ThingSpeak export can be processed with the same workflow.
+1. Collect synchronized sensor data with an ESP32.
+2. Store timestamped readings in ThingSpeak.
+3. Export the channel as CSV.
+4. Filter the current experiment period and remove incomplete sensor records.
+5. Train and compare regression models in MATLAB.
+6. Preserve the complete cell-by-cell code, numeric output, cleaned data, metrics, and trained models.
 
 ## System architecture
 
 ```mermaid
 flowchart LR
-  A[LM35 analog sensor] --> E[ESP32 acquisition]
-  B[DHT temperature/humidity sensor] --> E
-  E -->|Wi-Fi| C[ThingSpeak channel]
-  C -->|CSV export| D[MATLAB pipeline]
-  D --> V[Schema and data-quality checks]
-  V --> P[Chronological cleaning and split]
-  P --> M[Regression models]
-  M --> O[Metrics, plots, MAT models, reports]
+  A[LM35] --> E[ESP32]
+  B[DHT temperature and humidity] --> E
+  E -->|Wi-Fi| C[ThingSpeak]
+  C -->|CSV export| D[MATLAB Live Script]
+  D --> F[Date and missing-value filtering]
+  F --> G[Chronological train/test split]
+  G --> H[Regression models]
+  H --> I[Metrics, plots, models, reports]
 ```
 
 | Layer | Technology | Role |
 |---|---|---|
-| Controller | ESP32 DevKit-family board | Reads both sensors and uploads records |
-| Analog sensor | LM35 | Temperature signal |
-| Digital sensor | DHT module | Temperature and relative humidity |
-| IoT platform | ThingSpeak | Stores timestamped channel fields |
-| Analysis | MATLAB | Import, validation, cleaning, training, evaluation |
-| Models | Linear, trees, ensembles, SVR, Gaussian Process, neural-network regression where available | Model comparison |
-| Version control | Git/GitHub | Source and experiment provenance |
+| Controller | ESP32 | Sensor acquisition and ThingSpeak upload |
+| Sensors | LM35 and DHT module | Temperature and relative humidity readings |
+| IoT service | ThingSpeak | Timestamped channel storage |
+| Analysis | MATLAB R2026a Update 5 | Import, cleaning, training, evaluation |
+| Version control | Git/GitHub | Code and experiment provenance |
 
 ## Hardware and wiring
 
@@ -99,204 +83,148 @@ Electrical precautions:
 
 ## ThingSpeak schema
 
-Public ThingSpeak channel: [Channel 3543079](https://thingspeak.mathworks.com/channels/3543079)
+Public channel: [ThingSpeak Channel 3543079](https://thingspeak.mathworks.com/channels/3543079)
 
-| CSV column | Configured meaning | Units | Pipeline role |
+| CSV field | Configured meaning | Units | Current use |
 |---|---|---|---|
-| `created_at` | Record timestamp | UTC timestamp | Chronological ordering and gap analysis |
-| `field1` | LM35 temperature | °C | Primary target in the baseline |
-| `field2` | DHT temperature | °C | Additional predictor or alternate target |
-| `field3` | DHT humidity | %RH | Baseline predictor or alternate target |
+| `created_at` | ThingSpeak timestamp | UTC | Sorting and cutoff filtering |
+| `field1` | LM35 temperature | °C | Primary target |
+| `field2` | DHT temperature | °C | Optional second predictor |
+| `field3` | DHT humidity | %RH | Primary predictor |
 
-The pipeline does not silently swap fields. Historical firmware/serial evidence is not included here, so the configured labels should be reconciled with the physical firmware before treating every historical row as physically verified.
+The current manual code uses the configured mapping above and does not silently swap fields. The repository contains no firmware field-write code, so historical field integrity should be checked against the ESP32 firmware if the physical mapping is questioned.
 
-## Data and preprocessing
+## Current data processing
 
-The latest documented baseline run is `IoT_Temperature_Project_Pipeline/20261027_234943` and was generated from `feeds.csv`.
+The manual script [`manual_iot_pipeline_latest.m`](manual_iot_pipeline_latest.m) performs these steps:
 
-| Check | Latest finding |
-|---|---:|
-| Original records | 955 |
-| Complete rows used by the multi-target run | 911 |
-| Missing humidity values | 44 |
-| Duplicate timestamps | 0 |
-| Timestamp gaps over 30 seconds | 39 |
-| Largest timestamp gap | 319,714 seconds |
-| Baseline train/test rows | 728 / 183 |
+1. Clears the MATLAB workspace and imports `feeds.csv`.
+2. Parses `created_at` as UTC `datetime` values.
+3. Maps `field1`, `field2`, and `field3` to LM35 temperature, DHT temperature, and DHT humidity.
+4. Sorts records chronologically.
+5. Reports missing values, duplicate timestamps, and gaps over 30 seconds.
+6. Removes all rows before `27-Oct-2026 15:29:30`.
+7. Removes rows with missing/non-finite humidity.
+8. Removes any remaining rows with non-finite LM35 or DHT temperature values.
+9. Creates one final `cleanData` table with `Timestamp`, `LM35Temperature`, `DHTTemperature`, and `DHTHumidity`.
+10. Splits the cleaned table chronologically into 80% training and 20% testing rows.
 
-The pipeline reads the CSV directly, validates the required columns and timestamp format, orders records chronologically, standardizes sensor names, detects missing/non-finite values and gaps, excludes rows missing variables required by each experiment, and preserves the raw input. It does not replace missing readings with zeros or fabricate measurements.
+The latest raw export contains 44 missing humidity values, all in the initial records. The manual output reports 40 timestamp gaps over 30 seconds and a largest gap of 319,714 seconds before filtering. No missing values or duplicate timestamps remain in the final `cleanData` table.
 
-Long gaps and the initial missing-humidity block reduce confidence in a single chronological holdout. The current artifacts report the findings; they do not interpolate across outages.
+## Models and evaluation
 
-## Machine-learning experiments
+### Humidity-only experiment
 
-### Baseline: LM35 from humidity
+The primary experiment predicts LM35 temperature from DHT humidity only:
 
-- Target: `field1` / `LM35Temperature`.
-- Predictor: `field3` / `DHTHumidity` only.
-- Primary model: Fine Tree regression.
-- Comparator: training-mean prediction calculated from training rows only.
-- Split: chronological 80/20; earlier observations train the model and later observations form the held-out test set.
+```text
+DHTHumidity -> LM35Temperature
+```
 
-### Additional LM35 experiment
+Models trained in the manual run:
 
-The two-predictor Fine Tree uses:
+- Fine Tree
+- Linear Regression
+- LSBoost Ensemble
+- Gaussian SVR
+- Training-mean baseline
+
+The training-mean baseline is calculated from training LM35 values only. The test set is the final chronological 20%; it is not randomly shuffled.
+
+### Two-predictor experiment
+
+A second Fine Tree uses both DHT signals:
 
 ```text
 DHTHumidity + DHTTemperature -> LM35Temperature
 ```
 
-This is contemporaneous sensor regression, not a future forecast, because the predictors are measured at the same observation time as the target.
+This is contemporaneous sensor regression, not future forecasting: the predictor readings are measured at the same time as the target reading.
 
-### Multi-target benchmark
+## Latest manual results
 
-`run_multitarget_pipeline.m` uses one complete cleaned dataset and evaluates each sensor as a target predicted by the other two sensors. It compares supported model families including linear regression, robust linear regression, tree variants, LSBoost, bagged trees, SVM kernels, Gaussian Process regression, and neural-network regression. A model is skipped and documented if its MATLAB function/toolbox is unavailable.
+The complete captured output is available in [`manual_iot_pipeline_latest_output.txt`](manual_iot_pipeline_latest_output.txt), and the comparison table is [`manual_results_model_comparison.csv`](manual_results_model_comparison.csv).
 
-## Latest verified results
+| Model | RMSE (°C) | MAE (°C) | R² | Bias (°C) |
+|---|---:|---:|---:|---:|
+| Fine Tree | 1.2815 | 1.2022 | -44.825 | 1.1930 |
+| Linear Regression | 0.72697 | 0.68655 | -13.747 | -0.68655 |
+| LSBoost Ensemble | 1.1121 | 1.0873 | -33.507 | 1.0873 |
+| Gaussian SVR | 1.3163 | 1.2407 | -47.345 | 1.2407 |
+| Training Mean | 2.7496 | 2.7431 | -209.96 | 2.7431 |
 
-The primary comparison file is [`model_comparison_metrics.csv`](IoT_Temperature_Project_Pipeline/20261027_234943/metrics/model_comparison_metrics.csv).
+Two-predictor Fine Tree:
 
-| Model | Predictors | Test N | RMSE (°C) | MAE (°C) | R² |
-|---|---|---:|---:|---:|---:|
-| Linear regression | Humidity | 183 | 1.5570 | 1.4044 | -3.5164 |
-| Fine Tree | Humidity | 183 | 1.0389 | 0.8908 | -1.0107 |
-| LSBoost ensemble | Humidity | 183 | 0.8578 | 0.7517 | -0.3707 |
-| SVR | Humidity | 183 | 2.1252 | 1.9057 | -7.4141 |
-| Fine Tree | Humidity + DHT temperature | 183 | **0.4579** | **0.3111** | **0.6094** |
+| RMSE (°C) | MAE (°C) | R² | Bias (°C) |
+|---:|---:|---:|---:|
+| 0.506403 | 0.469687 | -6.155710 | 0.469687 |
 
-The two-predictor Fine Tree has the smallest reported RMSE and MAE among these LM35 experiments, but this is one chronological holdout, not a universal guarantee. RMSE is the square root of mean squared error; MAE is mean absolute error; R² is relative to a test-target mean reference; bias is mean prediction minus actual target.
+The negative R² values mean that the predictions perform worse than a test-target mean reference under the R² definition. They should not be hidden by the smaller absolute errors. These results come from one chronological test segment and should not be presented as robust generalization.
 
-Useful artifacts:
+The sensor correlation matrix from the same manual run was:
 
-- [Baseline report](IoT_Temperature_Project_Pipeline/20261027_234943/reports/run_report.txt)
-- [Data-quality summary](IoT_Temperature_Project_Pipeline/20261027_234943/metrics/data_quality_summary.csv)
-- [Baseline predictions](IoT_Temperature_Project_Pipeline/20261027_234943/figures/baseline_predictions.png)
-- [Baseline residuals](IoT_Temperature_Project_Pipeline/20261027_234943/figures/baseline_residuals.png)
-- [Multi-target metrics](IoT_Temperature_Project_Pipeline/multitarget_20261027_234957/metrics/all_target_model_metrics.csv)
-- [Multi-target RMSE figure](IoT_Temperature_Project_Pipeline/multitarget_20261027_234957/figures/all_models_rmse.png)
-
-## Latest cell-by-cell MATLAB run
-
-The complete manually executed Live Script is preserved in [`manual_iot_pipeline_latest.m`](manual_iot_pipeline_latest.m), with the captured Command Window output in [`manual_iot_pipeline_latest_output.txt`](manual_iot_pipeline_latest_output.txt).
-
-This run used the explicit cutoff `27-Oct-2026 15:29:30`, removed records before that time, removed missing humidity values, and then retained only complete finite sensor rows.
-
-| Manual-run result | Value |
-|---|---:|
-| Original rows | 1,026 |
-| Rows before cutoff | 80 |
-| Rows after date and humidity filtering | 946 |
-| Final cleaned rows | 946 |
-| Training rows | 756 |
-| Test rows | 190 |
-| Fine Tree humidity-only RMSE | 1.2815 °C |
-| Fine Tree humidity-only MAE | 1.2022 °C |
-| Fine Tree humidity-only R² | -44.825 |
-| Two-predictor Fine Tree RMSE | 0.506403 °C |
-| Two-predictor Fine Tree MAE | 0.469687 °C |
-| Two-predictor Fine Tree R² | -6.155710 |
-
-The corresponding artifacts are [`manual_results_cleaned_data.csv`](manual_results_cleaned_data.csv), [`manual_results_model_comparison.csv`](manual_results_model_comparison.csv), and [`manual_results_trained_models.mat`](manual_results_trained_models.mat). The negative R² values show that this held-out segment is difficult under the R² definition; the absolute errors should not be presented as proof of robust generalization.
-
-## Quick start and reproduction
-
-### Prerequisites
-
-- MATLAB with the functions required by the selected experiment (`readtable`, regression learners, plotting, and table/file I/O).
-- The Statistics and Machine Learning Toolbox, when running the model families that depend on it.
-- The repository's `feeds.csv`, or a new ThingSpeak export with the same required columns: `created_at`, `field1`, `field2`, and `field3`.
-
-The pipeline is written as MATLAB scripts and functions; there is no Python, Node.js, Docker, or separate web-service setup in this repository.
-
-```matlab
-projectRoot = pwd;
-inputFile = fullfile(projectRoot, 'feeds.csv');
-pipelineRoot = fullfile(projectRoot, 'IoT_Temperature_Project_Pipeline');
-addpath(projectRoot);
-summary = run_pipeline(inputFile, pipelineRoot, 0.80, true);
+```text
+             LM35       DHT temperature    DHT humidity
+LM35         1.0000     0.3317            -0.5086
+DHT temp     0.3317     1.0000            -0.7230
+Humidity    -0.5086    -0.7230             1.0000
 ```
 
-For the multi-target benchmark:
+## Reproduce the latest manual run
+
+Open `manual_iot_pipeline_latest.m` as a MATLAB Live Script or script and run the cells in order. It uses the original workstation input path:
 
 ```matlab
+filePath = 'C:\Users\alisa\Downloads\feeds.csv';
+```
+
+Change that path when using a new export. The script writes its final files to:
+
+```text
+C:\Users\alisa\Documents\Codex\matlab_manual_results
+```
+
+The saved cleaned data is [`manual_results_cleaned_data.csv`](manual_results_cleaned_data.csv), and the saved model bundle is [`manual_results_trained_models.mat`](manual_results_trained_models.mat).
+
+The reusable automated entry points remain available, but their older timestamped runs are historical artifacts and are not used for the current results in this README:
+
+```matlab
+summary = run_pipeline(inputFile, pipelineRoot, 0.80, true);
 summary = run_multitarget_pipeline(inputFile, pipelineRoot, 0.80);
 ```
 
-Each execution creates a new timestamped directory. Export a new ThingSpeak CSV, pass its path as `inputFile`, and review the new `data`, `metrics`, `figures`, `models`, `reports`, and `run_summary` files. The example paths are specific to the original Windows workstation.
-
-To use a saved humidity-only model:
-
-```matlab
-newReading = table(53.2, 'VariableNames', {'DHTHumidity'});
-[temperatureC, info] = predict_lm35_temperature(newReading, 'path/to/humidity_fine_tree.mat');
-```
-
-Each run creates a new timestamped output directory. Model families that are unavailable in the local MATLAB installation are skipped; only models that run successfully appear in the generated comparison files.
-
-## Configuration
-
-The project does not define a `.env` file or application configuration layer. `run_pipeline` and `run_multitarget_pipeline` accept the input CSV path, output directory, and train fraction as function arguments. Their source files also contain original Windows default paths, so passing explicit paths as shown above is recommended on other machines.
-
-The repository contains a public ThingSpeak export and generated experiment artifacts. Do not add Wi-Fi credentials, ThingSpeak write keys, access tokens, or other secrets to the repository.
-
-## Testing
-
-`test_pipeline_assertions.m` uses MATLAB's function-based testing framework:
-
-```matlab
-results = runtests('test_pipeline_assertions.m');
-table(results)
-```
-
-The tests are environment-specific: they currently reference the original Windows input/output paths and an earlier saved run under `IoT_Temperature_Project_Pipeline/20261027_202252`. Update those paths before running them elsewhere. This README does not claim that the test suite passes in the current environment.
-
-## API and external services
-
-This repository does not expose a custom HTTP API. The external data service is ThingSpeak:
-
-- [Public ThingSpeak channel 3543079](https://thingspeak.mathworks.com/channels/3543079)
-- CSV input schema and field mapping are documented in [ThingSpeak schema](#thingspeak-schema).
-
-The MATLAB functions operate on local files and saved `.mat` models rather than authenticated API endpoints.
-
-## Saved artifacts and repository structure
+## Repository contents
 
 ```text
 .
-├── feeds.csv                         # raw ThingSpeak export
-├── RoboticsAIOTTask.mlx              # original Live Script
-├── RoboticsAIOTTask_exported.m       # exported readable script
-├── run_pipeline.m                    # baseline/comparison entry point
-├── run_multitarget_pipeline.m        # three-target benchmark
-├── predict_lm35_temperature*.m       # prediction interfaces
-├── test_pipeline_assertions.m        # lightweight MATLAB tests
-├── docs/images/                      # hardware reference diagrams
-├── IoT_Temperature_Project_Output/   # earlier baseline artifacts
-└── IoT_Temperature_Project_Pipeline/ # timestamped data, metrics, figures, models, reports
+├── feeds.csv
+├── RoboticsAIOTTask.mlx
+├── RoboticsAIOTTask_exported.m
+├── manual_iot_pipeline_latest.m
+├── manual_iot_pipeline_latest_output.txt
+├── manual_results_cleaned_data.csv
+├── manual_results_model_comparison.csv
+├── manual_results_trained_models.mat
+├── run_pipeline.m
+├── run_multitarget_pipeline.m
+├── predict_lm35_temperature*.m
+├── test_pipeline_assertions.m
+├── docs/images/
+└── IoT_Temperature_Project_Pipeline/
 ```
-
-The repository contains raw data and generated artifacts intentionally for reproducibility. No API keys, Wi-Fi passwords, access tokens, or credentials are documented in this README.
 
 ## Limitations
 
-- The latest results are not a guarantee of generalization.
-- Long timestamp gaps and missing readings should be investigated at the sensor and ThingSpeak publishing layer.
-- Confirm the exact DHT model, supply/pull-up circuit, and firmware field-write statements.
-- Use additional continuous data and multiple operating conditions.
-- Keep chronological test data separate from model selection and tuning.
-- Compare models on identical test timestamps before declaring a winner.
-- This README documents saved artifacts and executed pipeline results; it does not claim a full MATLAB unit-test suite unless corresponding results are present in the artifacts.
+- The current results use one explicit date cutoff and one chronological holdout.
+- The negative R² values indicate that model quality is not robust under the current test segment.
+- Long timestamp gaps and sensor behavior should be investigated further.
+- Confirm the exact DHT module, wiring, firmware field writes, and calibration before relying on the model.
+- This repository documents sensor regression from contemporaneous readings; it does not implement future forecasting or embedded inference.
 
-## Disclaimer
+## Security and data policy
 
-This project is an engineering and machine-learning experiment for sensor-data analysis. Its predictions are not a substitute for calibrated instrumentation, environmental monitoring, safety controls, or professional engineering decisions. Validate the wiring, sensor ranges, data quality, and model behavior before using the results in any physical system.
+The repository intentionally includes the raw and cleaned experiment data and generated models requested for reproducibility. A full scan found no API keys, ThingSpeak read/write keys, access tokens, passwords, Wi-Fi credentials, or secrets in the published files. Do not add credentials to future exports or MATLAB scripts.
 
 ## License
 
 See [LICENSE](LICENSE).
-
-<div align="center">
-
-Built for reproducible IoT sensing and temperature-analysis experiments.
-
-</div>
