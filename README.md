@@ -175,6 +175,29 @@ Useful artifacts:
 - [Multi-target metrics](IoT_Temperature_Project_Pipeline/multitarget_20261027_234957/metrics/all_target_model_metrics.csv)
 - [Multi-target RMSE figure](IoT_Temperature_Project_Pipeline/multitarget_20261027_234957/figures/all_models_rmse.png)
 
+## Latest cell-by-cell MATLAB run
+
+The complete manually executed Live Script is preserved in [`manual_iot_pipeline_latest.m`](manual_iot_pipeline_latest.m), with the captured Command Window output in [`manual_iot_pipeline_latest_output.txt`](manual_iot_pipeline_latest_output.txt).
+
+This run used the explicit cutoff `27-Oct-2026 15:29:30`, removed records before that time, removed missing humidity values, and then retained only complete finite sensor rows.
+
+| Manual-run result | Value |
+|---|---:|
+| Original rows | 1,026 |
+| Rows before cutoff | 80 |
+| Rows after date and humidity filtering | 946 |
+| Final cleaned rows | 946 |
+| Training rows | 756 |
+| Test rows | 190 |
+| Fine Tree humidity-only RMSE | 1.2815 °C |
+| Fine Tree humidity-only MAE | 1.2022 °C |
+| Fine Tree humidity-only R² | -44.825 |
+| Two-predictor Fine Tree RMSE | 0.506403 °C |
+| Two-predictor Fine Tree MAE | 0.469687 °C |
+| Two-predictor Fine Tree R² | -6.155710 |
+
+The corresponding artifacts are [`manual_results_cleaned_data.csv`](manual_results_cleaned_data.csv), [`manual_results_model_comparison.csv`](manual_results_model_comparison.csv), and [`manual_results_trained_models.mat`](manual_results_trained_models.mat). The negative R² values show that this held-out segment is difficult under the R² definition; the absolute errors should not be presented as proof of robust generalization.
+
 ## Quick start and reproduction
 
 ### Prerequisites
