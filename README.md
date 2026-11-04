@@ -1,5 +1,4 @@
-<div align="center">
-#🌡️ IoT Temperature Prediction Using MATLAB and ESP32
+<h1 align="center">🌡️ IoT Temperature Prediction Using MATLAB and ESP32</h1>
 
 This project implements a complete sensor-data and machine-learning workflow that starts with physical measurements from an ESP32 and ends with reproducible MATLAB regression results. An LM35 analog temperature sensor and a DHT temperature/humidity sensor are read by the ESP32, uploaded over Wi-Fi to ThingSpeak, and exported as a timestamped CSV dataset. MATLAB then imports the export, validates the schema, parses and orders the timestamps, checks missing values and sampling gaps, applies the current experiment cutoff, removes incomplete sensor records, and creates the final dataset used for analysis.
 
