@@ -20,6 +20,32 @@ The repository documents the entire process rather than only a final model: the 
 | Split | Chronological 80/20 |
 | Duplicate timestamps after cleaning | 0 |
 
+## Latest manual implementation and saved visuals
+
+The canonical current implementation is [`latest_manual_run/manual_iot_pipeline_latest.m`](latest_manual_run/manual_iot_pipeline_latest.m). It is the cell-by-cell MATLAB code that created the current cleaned data, models, metrics, and exported figures. The complete run outputs are grouped in [`latest_manual_run/`](latest_manual_run/).
+
+### Visuals exported by the current code
+
+![Raw sensor signals](latest_manual_run/figures/step07_raw_sensor_signals.png)
+
+![Cleaned sensor signals](latest_manual_run/figures/step09_cleaned_sensor_signals.png)
+
+![Fine Tree graph](latest_manual_run/figures/step14_fine_tree_graph.png)
+
+![Actual versus predicted LM35 over time](latest_manual_run/figures/step17_actual_vs_predicted_time.png)
+
+![Fine Tree residuals over time](latest_manual_run/figures/step18_residuals_over_time.png)
+
+![Actual versus predicted scatter](latest_manual_run/figures/step19_actual_vs_predicted_scatter.png)
+
+![Model RMSE comparison](latest_manual_run/figures/step24_model_comparison_rmse.png)
+
+![Model MAE and R-squared comparison](latest_manual_run/figures/step25_model_comparison_mae_r2.png)
+
+![Two-predictor Fine Tree predictions](latest_manual_run/figures/step27_two_predictor_predictions.png)
+
+![Sensor correlation matrix](latest_manual_run/figures/step28_sensor_correlation_matrix.png)
+
 ## Objectives
 
 1. Collect synchronized sensor data with an ESP32.
