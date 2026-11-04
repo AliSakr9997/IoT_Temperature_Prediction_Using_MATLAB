@@ -69,7 +69,7 @@ flowchart LR
 
 ## Hardware and wiring
 
-The project documentation identifies these intended connections. No firmware sketch or photograph of the assembled circuit is included in this repository, so the exact DHT variant, supply arrangement, pull-up implementation, and final wiring should be confirmed against the physical build before publication or replication.
+The project documentation identifies these intended connections. The wiring photo below provides a visual reference for the depicted ESP32, LM35, and DHT module connections; the exact DHT variant, supply arrangement, pull-up implementation, and final wiring should still be confirmed against the physical build.
 
 | Component | Connection | Signal | Purpose |
 |---|---|---|---|
@@ -85,6 +85,10 @@ The project documentation identifies these intended connections. No firmware ske
 ![ESP32, LM35, and DHT wiring schematic](docs/images/esp32-lm35-dht-wiring.svg)
 
 *Figure 2. Conceptual project wiring and data-flow schematic. It is not a photograph and must be checked against the actual circuit.*
+
+![ESP32, LM35, and DHT wiring photo](docs/images/esp32-lm35-dht-photo.png)
+
+*Figure 3. Wiring photo/reference showing the ESP32 connected to the LM35 and DHT module.*
 
 Electrical precautions:
 
