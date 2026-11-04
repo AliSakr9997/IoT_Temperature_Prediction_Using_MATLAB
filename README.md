@@ -1,8 +1,8 @@
-# IoT Temperature Prediction Using MATLAB
+# IoT Temperature Prediction Using MATLAB and ESP32
 
-An ESP32–ThingSpeak–MATLAB project for collecting LM35 and DHT sensor readings, cleaning the latest exported dataset, comparing regression models, and preserving the exact code and outputs used for the current experiment.
+This project implements a complete sensor-data and machine-learning workflow that starts with physical measurements from an ESP32 and ends with reproducible MATLAB regression results. An LM35 analog temperature sensor and a DHT temperature/humidity sensor are read by the ESP32, uploaded over Wi-Fi to ThingSpeak, and exported as a timestamped CSV dataset. MATLAB then imports the export, validates the schema, parses and orders the timestamps, checks missing values and sampling gaps, applies the current experiment cutoff, removes incomplete sensor records, and creates the final dataset used for analysis.
 
-This README intentionally documents the latest manual MATLAB run only. Earlier experiment counts, metrics, and timestamped runs are not used as current results.
+The repository documents the entire process rather than only a final model: the original Live Script, the cell-by-cell manual implementation, reusable MATLAB pipeline entry points, raw and cleaned data, model-comparison tables, trained `.mat` models, figures, captured MATLAB output, reports, and hardware reference diagrams. The workflow evaluates chronological train/test performance for humidity-only LM35 prediction, compares several regression approaches, and separately evaluates the benefit of using DHT temperature together with humidity. Every reported result in the current analysis is tied to the latest manual dataset and its saved artifacts, while older experiment folders are retained only as historical files and are not used as the current README source of truth.
 
 ## Current experiment at a glance
 
