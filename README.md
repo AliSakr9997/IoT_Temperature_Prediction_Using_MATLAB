@@ -182,6 +182,10 @@ The strongest validation result is Gaussian Process Regression model **2.19**, w
 
 *Figure 13. Repository model-comparison figure corresponding to the regression-model evaluation. The complete exported table, including all models and metrics, is available in [`resultsTable.csv`](resultsTable.csv).*
 
+![Regression Learner Compare Results screenshot](docs/images/regression-learner-compare-results.png)
+
+*Figure 14. MATLAB Regression Learner Compare Results view showing the 29 trained models sorted by validation RMSE.*
+
 These cross-validation results are a separate experiment from the chronological holdout results reported below. Because the response variable and validation design differ, their metrics should not be compared directly with the humidity-only or two-predictor Fine Tree test metrics.
 
 ## Latest manual results
