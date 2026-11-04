@@ -20,31 +20,9 @@ The repository documents the entire process rather than only a final model: the 
 | Split | Chronological 80/20 |
 | Duplicate timestamps after cleaning | 0 |
 
-## Latest manual implementation and saved visuals
+## Latest manual implementation and saved outputs
 
 The canonical current implementation is [`latest_manual_run/manual_iot_pipeline_latest.m`](latest_manual_run/manual_iot_pipeline_latest.m). It is the cell-by-cell MATLAB code that created the current cleaned data, models, metrics, and exported figures. The complete run outputs are grouped in [`latest_manual_run/`](latest_manual_run/).
-
-### Visuals exported by the current code
-
-![Raw sensor signals](latest_manual_run/figures/step07_raw_sensor_signals.png)
-
-![Cleaned sensor signals](latest_manual_run/figures/step09_cleaned_sensor_signals.png)
-
-![Fine Tree graph](latest_manual_run/figures/step14_fine_tree_graph.png)
-
-![Actual versus predicted LM35 over time](latest_manual_run/figures/step17_actual_vs_predicted_time.png)
-
-![Fine Tree residuals over time](latest_manual_run/figures/step18_residuals_over_time.png)
-
-![Actual versus predicted scatter](latest_manual_run/figures/step19_actual_vs_predicted_scatter.png)
-
-![Model RMSE comparison](latest_manual_run/figures/step24_model_comparison_rmse.png)
-
-![Model MAE and R-squared comparison](latest_manual_run/figures/step25_model_comparison_mae_r2.png)
-
-![Two-predictor Fine Tree predictions](latest_manual_run/figures/step27_two_predictor_predictions.png)
-
-![Sensor correlation matrix](latest_manual_run/figures/step28_sensor_correlation_matrix.png)
 
 ## Objectives
 
@@ -135,6 +113,16 @@ The manual script [`manual_iot_pipeline_latest.m`](manual_iot_pipeline_latest.m)
 9. Creates one final `cleanData` table with `Timestamp`, `LM35Temperature`, `DHTTemperature`, and `DHTHumidity`.
 10. Splits the cleaned table chronologically into 80% training and 20% testing rows.
 
+The exported signal plots show the effect of this process. The first plot is the raw synchronized sensor export before filtering; the second is the final cleaned data used for modeling.
+
+![Raw sensor signals before filtering](latest_manual_run/figures/step07_raw_sensor_signals.png)
+
+*Figure 4. Raw LM35, DHT temperature, and DHT humidity signals from the imported ThingSpeak export.*
+
+![Cleaned sensor signals used for modeling](latest_manual_run/figures/step09_cleaned_sensor_signals.png)
+
+*Figure 5. Sensor signals after the cutoff and missing-value filters are applied.*
+
 The latest raw export contains 44 missing humidity values, all in the initial records. The manual output reports 40 timestamp gaps over 30 seconds and a largest gap of 319,714 seconds before filtering. No missing values or duplicate timestamps remain in the final `cleanData` table.
 
 ## Models and evaluation
@@ -154,6 +142,12 @@ Models trained in the manual run:
 - LSBoost Ensemble
 - Gaussian SVR
 - Training-mean baseline
+
+The fitted Fine Tree structure is exported for inspection:
+
+![Fine Tree regression graph](latest_manual_run/figures/step14_fine_tree_graph.png)
+
+*Figure 6. Fine Tree model structure used in the humidity-only experiment.*
 
 The training-mean baseline is calculated from training LM35 values only. The test set is the final chronological 20%; it is not randomly shuffled.
 
@@ -185,6 +179,36 @@ Two-predictor Fine Tree:
 |---:|---:|---:|---:|
 | 0.506403 | 0.469687 | -6.155710 | 0.469687 |
 
+The following plots show the humidity-only Fine Tree predictions on the chronological test segment. They should be read together: the time plot shows temporal behavior, the residual plot shows error over time, and the scatter plot compares predictions with observations.
+
+![Actual versus predicted LM35 temperature over time](latest_manual_run/figures/step17_actual_vs_predicted_time.png)
+
+*Figure 7. Actual and Fine Tree-predicted LM35 temperature across the test segment.*
+
+![Fine Tree residuals over time](latest_manual_run/figures/step18_residuals_over_time.png)
+
+*Figure 8. Fine Tree prediction residuals across the chronological test segment.*
+
+![Actual versus predicted LM35 temperature scatter plot](latest_manual_run/figures/step19_actual_vs_predicted_scatter.png)
+
+*Figure 9. Predicted versus actual LM35 temperature, with the ideal agreement line as reference.*
+
+Model-level comparisons are shown below:
+
+![Model RMSE comparison](latest_manual_run/figures/step24_model_comparison_rmse.png)
+
+*Figure 10. Test RMSE comparison for the evaluated models.*
+
+![Model MAE and R-squared comparison](latest_manual_run/figures/step25_model_comparison_mae_r2.png)
+
+*Figure 11. Test MAE and R-squared comparison for the evaluated models.*
+
+The two-predictor experiment adds DHT temperature to humidity:
+
+![Two-predictor Fine Tree predictions](latest_manual_run/figures/step27_two_predictor_predictions.png)
+
+*Figure 12. Fine Tree predictions when both DHT temperature and humidity are used as predictors.*
+
 The negative R² values mean that the predictions perform worse than a test-target mean reference under the R² definition. They should not be hidden by the smaller absolute errors. These results come from one chronological test segment and should not be presented as robust generalization.
 
 The sensor correlation matrix from the same manual run was:
@@ -195,6 +219,10 @@ LM35         1.0000     0.3317            -0.5086
 DHT temp     0.3317     1.0000            -0.7230
 Humidity    -0.5086    -0.7230             1.0000
 ```
+
+![Sensor correlation matrix](latest_manual_run/figures/step28_sensor_correlation_matrix.png)
+
+*Figure 13. Correlations among LM35 temperature, DHT temperature, and DHT humidity in the cleaned dataset.*
 
 ## Reproduce the latest manual run
 
